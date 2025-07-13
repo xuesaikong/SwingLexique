@@ -23,9 +23,10 @@ public class WordList {
             return;
         }
         
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader（new FileInputstream(file), StandardCharsets.utf_8))){
+        try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader（new FileInputstream(file), StandardCharsets.utf_8))){ //确保读码顺利
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) { //逐行进行读取直至结束
                 String[] parts = line.split(",");
                 if (parts.length >= 3) {
                     String word = parts[0]; //单词
