@@ -83,7 +83,8 @@ public class WordList {
         words.add(word); //单词加入单词表
         if (word.getWrongCount() > 0) {
             wrongwords.put(word.getWord(), word.getWrongcount()); //答错单词加入错题集
-            saveTOFile();
+        }
+    }
 
     public void removeWord(Word word) {
         words.remove(word);  //在单词表中删除
