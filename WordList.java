@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.charset.standardCharsets;
 import java.util.*;
 
 public class WordList {
@@ -22,7 +23,7 @@ public class WordList {
             return;
         }
         
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader（new FileInputstream(file), StandardCharsets.utf_8))){
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -88,8 +89,7 @@ public class WordList {
         }
         return null;
     }
-
- 
+    
     public int size() {
         return words.size(); //单词量
     }
