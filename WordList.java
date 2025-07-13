@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.charset.StandarCharsets;
 import java.util.*;
 
 public class WordList {
@@ -22,7 +23,8 @@ public class WordList {
             return;
         }
         
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file),StandardCharasets.UTF_8)
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -80,7 +82,8 @@ public class WordList {
         words.add(word); //单词加入单词表
         if (word.getWrongCount() > 0) {
             wrongwords.put(word.getWord(), word.getWrongcount()); //答错单词加入错题集
-            saveTOFile();
+        }
+    }
 
     public void removeWord(Word word) {
         words.remove(word);  //在单词表中删除
@@ -94,7 +97,7 @@ public class WordList {
         }
         return null;
     }
-
+        return //单词数量
  
     public int size() {
         return words.size(); //单词量
