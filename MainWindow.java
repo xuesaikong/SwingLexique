@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.UIManager;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,14 +19,13 @@ public class MainWindow extends JFrame { // 常量定义
     private static final String STUDY_PANEL = "单词学习"; //单词学习
     private static final String WRONG_PANEL = "错题本"; //错题本
 
-    private WordList currentWordList; //正在使用的词表
+    private WordList currentWordList; //核心数据
     private String currentDictPath = "words.csv"; // 默认词典路径
 
     private JPanel cardPanel; //卡片布局 各个功能面板
     private CardLayout cardLayout; //不同功能界面切换
  
     private JPanel homePanel; //主页界面
-    
     private JPanel dictPanel; //词库管理面板
     private JTable wordTable; //显示单词列表表格
     private DefaultTableModel tableModel; //表格数据
@@ -56,8 +56,16 @@ public class MainWindow extends JFrame { // 常量定义
         super("单词学习系统"); //标题
         setSize(800, 600); //窗口尺寸
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //退出
-        setLocationRelativeTo(null); //窗口剧中显示
+        setLocationRelativeTo(null); //窗口居中显示
 
+        Font globalFont = new Font("Dialong", Font.PLAIN, 12); //设置UI字体，支持法语
+        UIManger.put("Button.Font", globalFont);
+        UIManger.put("Label.Font", globalFont);
+        UIManger.put("TextField.Font", globalFont);
+        UIManger.put("TextArea.Font", globalFont);
+        UIManger.put("Table.Font", globalFont);
+        UIManger.put("ComboBox.Font", globalFont);
+        
         currentWordList = new WordList(currentDictPath); // 初始化单词列表
 
         initComponents();     // 初始化界面组件
@@ -181,9 +189,8 @@ public class MainWindow extends JFrame { // 常量定义
         dictPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //内边距
 
         JPanel topPanel = new JPanel(new BorderLayout()); //顶部面板
-        
-        // 词典选择面板
-        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // 词典选择面板
         dictSelectPanel.add(new JLabel("选择词典:")); //添加选择词典标签
         dictComboBox = new JComboBox<>(); //创建下拉框选择词典
         dictComboBox.setPreferredSize(new Dimension(200, 25)); //宽高
@@ -235,7 +242,6 @@ public class MainWindow extends JFrame { // 常量定义
         inputPanel.add(exampleField); //例句输入
         
         JPanel buttonPanel = new JPanel(new FlowLayout()); //创建按钮面板
-        
         JButton addButton = new JButton("添加单词"); //添加单词按钮
         addButton.addActionListener(e -> addWord()); //添加单词
         buttonPanel.add(addButton); //添加单词按钮添加到底部
@@ -249,11 +255,10 @@ public class MainWindow extends JFrame { // 常量定义
         buttonPanel.add(deleteButton); //删除单词按钮到底部地步
         
         JButton importButton = new JButton("批量导入"); //批量导入按钮
-        importButton.addActionListener(e -> importFromCSV()); //输入框置于中部
-        buttonPanel.add(importButton); //按钮放在底部
+        importButton.addActionListener(e -> importFromCSV()); //用csv方法进行导入
+        buttonPanel.add(importButton); //批量导入按钮到底部
         
-        // 添加输入面板和按钮面板到底部
-        JPanel bottomPanel = new JPanel(new BorderLayout()); //底部面变 边界布局 放置输入和按钮
+        JPanel bottomPanel = new JPanel(new BorderLayout()); //底部面板 边界布局 放置输入和按钮
         bottomPanel.add(inputPanel, BorderLayout.CENTER); //单词中文释义例句放在面板底部居中
         bottomPanel.add(buttonPanel, BorderLayout.SOUTH);  //添加编辑删除放在底部区域
 
@@ -264,9 +269,8 @@ public class MainWindow extends JFrame { // 常量定义
         studyPanel = new JPanel(new BorderLayout(10, 10)); //边界布局
         studyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //边框留白
 
-        JPanel topPanel = new JPanel(new BorderLayout()); // 创建顶部面板
+        JPanel topPanel = new JPanel(new BorderLayout()); // 进行面板创建
         
-        // 学习统计面板
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //统计信息区域创建总单词 已学习 答错数据 居左
         statsPanel.add(new JLabel("总单词数:")); //总单词书静态
         totalWordsLabel = new JLabel("0"); //更新总数
@@ -286,21 +290,19 @@ public class MainWindow extends JFrame { // 常量定义
         
         topPanel.add(statsPanel, BorderLayout.WEST); //以上统计信息添加到左侧
         
-        JButton homeButton = new JButton("返回主页"); //创建顶部面板
+        JButton homeButton = new JButton("返回主页"); //返回主页按钮
         homeButton.addActionListener(e -> {
             showStudyResult(); //当前学习结果
             cardLayout.show(cardPanel, HOME_PANEL); //转到主页
         });
         topPanel.add(homeButton, BorderLayout.EAST); //主页按钮位于顶部面板右侧
         
-        studyPanel.add(topPanel, BorderLayout.NORTH); //顶部面变添加到学习页面
+        studyPanel.add(topPanel, BorderLayout.NORTH); //顶部的面板添加到学习页面的顶部
         
-        // 创建中间面板
         JPanel centerPanel = new JPanel(); //中间面板
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS)); //垂直排列
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); //四周边距50像素
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); // 四周边距的像素设定为50
         
-        // 单词显示
         currentWordLabel = new JLabel("", JLabel.CENTER); //创建空标签，居中
         currentWordLabel.setFont(new Font("宋体", Font.BOLD, 36)); //字体大小
         currentWordLabel.setAlignmentX(Component.CENTER_ALIGNMENT); //水平方向居中对齐
@@ -363,7 +365,7 @@ public class MainWindow extends JFrame { // 常量定义
         titleLabel.setFont(new Font("宋体", Font.BOLD, 24)); //字体及大小
         topPanel.add(titleLabel, BorderLayout.CENTER); //添加到中间位置
         
-        JButton homeButton = new JButton("返回主页"); //穿件返回主页按钮
+        JButton homeButton = new JButton("返回主页"); //创建返回主页按钮
         homeButton.addActionListener(e -> cardLayout.show(cardPanel, HOME_PANEL)); //返回首页
         topPanel.add(homeButton, BorderLayout.EAST); //添加到右侧
         
@@ -373,7 +375,7 @@ public class MainWindow extends JFrame { // 常量定义
         wrongTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;  // 表格不可编辑
+                return false;  //表格不可编辑
             }
         };
         wrongTable = new JTable(wrongTableModel); //创建表格
@@ -455,7 +457,7 @@ public class MainWindow extends JFrame { // 常量定义
             return;
         }
         
-        Word newWord = new Word(word, meaning, example); //创建新的dance
+        Word newWord = new Word(word, meaning, example); //创建新的单词
         currentWordList.addWord(newWord); //添加到字典
         
         wordField.setText("");
