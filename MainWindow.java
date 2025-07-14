@@ -42,7 +42,7 @@ public class MainWindow extends JFrame { // 常量定义
     private JLabel meaningLabel; //中文释义
     private JLabel exampleLabel; //例句
     private JTextField answerField; //输入答案的输入框
-    private JButton nextButton; //下一个
+    private JButton nextButton; //下一个按钮
     private int totalStudied = 0; //学习总数量
     private int correctCount = 0; //正确数量总数
     private int wrongCount = 0; //错误总数
@@ -521,13 +521,21 @@ public class MainWindow extends JFrame { // 常量定义
                         new InputStreamReader(new FileInputStream(selectedFile), StandardCharsets.UTF_8))) { //使用UTF_8读取
                     String line;// 跳过第一行（表头）
                     reader.readLine(); //逗号分隔
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(",");
+                    while ((line = reader.readLine()) != null) { //逐个读取
+                        if（line = reader.readline()) !=null{ //空行跳过
+                            continue; //继续下一行
+                        }
+
+                        string[]parts = line.split(",") //逗号分隔
                         if (parts.length >= 2) {
-                            String word = parts[0]; //单词
-                            String meaning = parts[1]; //中文释义
-                            String example = parts.length >= 3 ? parts[2] : ""; //例句
-                            
+                            string word = parts[0].trim(); //要求至少包含单词和中文释义
+                            string meaning = parts[1].trim(); //获取单词
+                            string example =parts.length>=3 ? parts[2].trim():"", //获取中文释义
+
+                            word = removeQuotes(word) //去掉单词两边的引号
+                            meaning = removeQuotes(meaning) //去掉中文释义的两边引号
+                            example = removeQuotes(example) //去掉例句两边的引号
+                                
                             if (!word.isEmpty() && !meaning.isEmpty()) { //无单词 无中文释义
                                 Word newWord = new Word(word, meaning, example); //创建新词（单词中文释义例句）
                                 currentWordList.addWordWithoutSave(newWord); //添加不立即保存
@@ -598,7 +606,7 @@ public class MainWindow extends JFrame { // 常量定义
         if (answer.equalsIgnoreCase(currentWord.getMeaning())) { //// 检查答案 答对
             correctCount++; //正确数增加
             currentWordLabel.setForeground(Color.GREEN); //显示为绿色
-            currentWordList.recordReview(currentWord); //复习书增加
+            currentWordList.recordReview(currentWord); //正确数量增加
         } else { // 答错
             wrongCount++; //错误数增加
             currentWordLabel.setForeground(Color.RED); //显示为红色
