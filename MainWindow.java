@@ -699,4 +699,18 @@ public class MainWindow extends JFrame { // 常量定义
             }
         });
     }
-} 
+
+    private string removeQuotes(string str) //移除两边的引号
+        if (str.  == null || str. length() < 2) //不需移除
+            return str;
+        }
+
+        if ((str.startsWith("\") && str.endsWith("\")) || 
+            (str.startsWith("\") && str.endsWith(""))) { //支持中文的引号
+            return str.substring(1, str.length() - 1); //处理后
+        }
+
+        return str //不满足 返回
+
+    }
+}
