@@ -590,6 +590,7 @@ public class MainWindow extends JFrame { // 常量定义
         currentWord = words.get(index); //随机选择一个单词
 
         currentWordLabel.setText(currentWord.getWord()); //更新界面
+        currentWordLabel.setForeground(UIManager.getColor("Label.foreground")); //重置文本为绿色
         meaningLabel.setText("含义: " + currentWord.getMeaning()); //正确单词中文释义
         exampleLabel.setText("例句: " + currentWord.getExample()); //例句
 
