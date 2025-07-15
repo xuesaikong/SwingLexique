@@ -700,9 +700,7 @@ public class MainWindow extends JFrame { // 常量定义
             Object[] rowData = {
                 word.getWord(), 
                 word.getMeaning(),
-                word.getExample(),
-                word.getWrongCount(),
-                word.getReviewCount()
+                word.getExample()
             };
             wrongTableModel.addRow(rowData); //错题（包括以上单词中文释义例句错误数量复习情况信息）加入表格
         }
