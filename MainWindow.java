@@ -506,8 +506,6 @@ public class MainWindow extends JFrame { // 常量定义
                 word.getWord(), //单词
                 word.getMeaning(), //中文释义
                 word.getExample(), //例句
-                word.getWrongCount(), //错误次数
-                word.getReviewCount() //复习次数
             };
             tableModel.addRow(rowData); //按照以上要求添加到表格
         }
