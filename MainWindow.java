@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class MainWindow extends JFrame { // 常量定义
     private static final String HOME_PANEL = "主页"; //主页
@@ -204,8 +205,12 @@ public class MainWindow extends JFrame { // 常量定义
         dictSelectPanel.add(dictComboBox); //左侧区域添加下拉框
         
         JButton newDictButton = new JButton("新建词典"); //新建词典按钮
-        newDictButton.addActionListener(e -> createNewDictionary()); //调用新建词典函数
+        newDictButton.addActionListener(e -> createNewDictionary()); //调用新建词典
         dictSelectPanel.add(newDictButton);
+
+        JButton deleteDictButton = new JButton("删除词典"); //新建删除字典按钮
+        deleteDictbutton.addActionListener(e -> createNewDictionary()); //调用删除字典
+        dictSelectPanel.add(deleteDictButton); //按钮谈驾到词典选择的面板上
         
         topPanel.add(dictSelectPanel, BorderLayout.WEST); //左侧词典选择区域加入顶部面板
 
@@ -222,8 +227,10 @@ public class MainWindow extends JFrame { // 常量定义
                 return false;  // 表格不可编辑
             }
         };
+
         wordTable = new JTable(tableModel); //创建表格
-        JScrollPane scrollPane = new JScrollPane(wordTable); //有滚动条的表格区域
+        wordTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //允许多选
+        JScrollPane scrollPane = new JScrollPane(wordTable); //创建滚动条
         dictPanel.add(scrollPane, BorderLayout.CENTER); //添加表格到中部区域
 
         JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
@@ -253,6 +260,10 @@ public class MainWindow extends JFrame { // 常量定义
         JButton deleteButton = new JButton("删除单词"); //添加删除单词按钮
         deleteButton.addActionListener(e -> deleteWord()); //删除单词
         buttonPanel.add(deleteButton); //删除单词按钮到底部地步
+
+        JButton batchDeleteButton = new JButton("批量删除"); //添加批量删除按钮
+        batchDeleteButton.addActionListener(e -> batchDeleteWords()); //批量删除
+        buttonPanel.add(batchDeleteButton); // 按钮到底部按钮面板中
         
         JButton importButton = new JButton("批量导入"); //批量导入按钮
         importButton.addActionListener(e -> importFromCSV()); //用csv方法进行导入
@@ -685,6 +696,70 @@ public class MainWindow extends JFrame { // 常量定义
         }
     }
 
+    private void deleteDictionary() { //删除字典
+        if ((dictComboBox.getSelectedItem() == null) { //没有选择字典
+            JOptionPane.showMessageDialog(this, "请先选择一个词典！", "提示", JOptionPane.WARNING_MESSAGE); //弹出提示
+            return;
+        }
+
+        String dictName = dictComboBox.getSelectedItem().toString(); //获取选中的单词词典的名称（单词表
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "确定要删除词典 '" + dictName + "' 吗？此操作不可恢复！", //弹出提示
+            "确认删除", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //操作不可删除
+        if (confirm == JOptionPane.YES_OPTION) { //确定
+            File dictFile = new File(dictName);
+            if (dictFile.exists() && dictFile.delete()) { //存在且删除成功
+                JOptionPane.showMessageDialog(this, "词典已成功删除！", "成功", JOptionPane.INFORMATION_MESSAGE); //提示
+
+                loadDictionaries(); //重新加载
+        
+                if (dictComboBox.getItemCount() > 0) { //有剩余字典
+                    dictComboBox.setSelectedIndex(0); //选择第一个字典
+                    currentDictPath = dictComboBox.getSelectedItem().toString(); //更新当前词典路径
+                    currentWordList = new WordList(currentDictPath); //加载内容
+                } else {
+                    currentDictPath = "words.csv"; //无词典创建新的
+                    currentWordList = new WordList(currentDictPath); 
+                    currentWordList.saveToFile(); //保存
+                    loadDictionaries(); //加载新的
+                }
+
+                loadWordData(); //加载词表到数据中
+            } else {
+                JOptionPane.showMessageDialog(this, "删除词典失败！", "错误", JOptionPane.ERROR_MESSAGE); //失败弹出数据
+            }
+        }
+    }
+
+    private void batchDeleteWords() { //批量删除单词
+        int[] selectedRows = wordTable.getSelectedRows(); //获取所选
+        if (selectedRows.length == 0) {
+            JOptionPane.showMessageDialog(this, "请选择要删除的单词！", "提示", JOptionPane.INFORMATION_MESSAGE); //提示
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "确定要删除选中的 " + selectedRows.length + " 个单词吗？", 
+            "确认删除", JOptionPane.YES_NO_OPTION); //弹出提示
+
+        if (confirm == JOptionPane.YES_OPTION) { //同意
+            List<Word> wordsToDelete = new ArrayList<>(); //创建新列表用于删除单词
+            for (int i = selectedRows.length - 1; i >= 0; i--) { //倒序
+                Word word = currentWordList.getWord(selectedRows[i]); //获取单词
+                if (word != null) {
+                    wordsToDelete.add(word); //添加到列表
+                }
+            }
+
+            for (Word word : wordsToDelete) { //获取单词
+                currentWordList.removeWord(word); //删除
+            }
+
+            loadWordData(); //刷新
+             JOptionPane.showMessageDialog(this, "已删除 " + wordsToDelete.size() + " 个单词！", "删除完成", JOptionPane.INFORMATION_MESSAGE); //弹出提示
+        }
+    }
+                   
     public static void main(String[] args) { //使用系统外观
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
