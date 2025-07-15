@@ -227,7 +227,7 @@ public class MainWindow extends JFrame { // 常量定义
         
         dictPanel.add(topPanel, BorderLayout.NORTH); //顶部加入到词典主页面
         
-        String[] columnNames = {"单词", "含义", "例句", "错误次数", "复习次数"}; //创建表格
+        String[] columnNames = {"单词", "含义", "例句",}; //创建表格
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
