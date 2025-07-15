@@ -120,7 +120,7 @@ public class MainWindow extends JFrame { // 常量定义
             cardLayout.show(cardPanel, DICT_PANEL); //切换到词典管理
         });
         
-        JMenuItem studyItem = new JMenuItem(STUDY_PANEL);
+        JMenuItem studyItem = new JMenuItem(STUDY_PANEL); 
         studyItem.addActionListener(e -> {
             if (currentWordList.size() > 0) { //检验是否有单词
                 resetStudyStats(); //学习数据重制
@@ -166,16 +166,10 @@ public class MainWindow extends JFrame { // 常量定义
             cardLayout.show(cardPanel, DICT_PANEL); //切换词库页面
         });
         
-        JButton studyButton = new JButton("单词学习"); //错题本按钮
+        JButton studyButton = new JButton("单词学习"); //单词学习按钮
         studyButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体和大小
         studyButton.addActionListener(e -> {
-            if (currentWordList.size() > 0) {
-                resetStudyStats(); //重置学习情况
-                loadNextWord(); //加载下一代单词
-                cardLayout.show(cardPanel, STUDY_PANEL); //切换到学习页面
-            } else {
-                JOptionPane.showMessageDialog(this, "当前词典没有单词，请先添加单词！", "提示", JOptionPane.WARNING_MESSAGE); //没有单词，提示错误
-            }
+            showDictionarySelectionDialog(); //弹出选择词表的窗口
         });
         
         JButton wrongButton = new JButton("错题本"); //创建错题本
@@ -846,4 +840,29 @@ public class MainWindow extends JFrame { // 常量定义
         return str //不满足 返回
 
     }
-}
+    private void showDictionarySelectionDialog() { //创建数组
+            String[] dictNames = new String[dictComboBox.getItemCount()]; 
+            for (int i = 0; i < dictComboBox.getItemCount(); i++) {
+                dictNames[i] = dictComboBox.getItemAt(i); //词典名称存入
+            }
+
+            String selectedDict = (String) JOptionPane.showInputDialog( //弹出窗口
+                this，
+                "请选择要学习的词典:", //内容
+                "选择词典", //标题
+                JOptionPane.QUESTION_MESSAGE, //问号
+                null, //默认图标
+                dictNames, //可下拉
+                currentDictPath //默认选中的词典
+            ）；
+
+            if （selectedDict != null) { //选择了词典
+                currentDictPath = selectedDict; //词典路径为被选择的
+                currentWordList = new WordList(currentDictPath); //用新保存的词典创建新表
+                saveConfig(); //保存新设定
+                loadWordData(); //刷新新数据
+                resetStudyStats(); //重置
+                resetStudyStats(); //加载单词
+            }
+        }
+    }
