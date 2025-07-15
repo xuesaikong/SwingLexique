@@ -859,10 +859,15 @@ public class MainWindow extends JFrame { // 常量定义
             if （selectedDict != null) { //选择了词典
                 currentDictPath = selectedDict; //词典路径为被选择的
                 currentWordList = new WordList(currentDictPath); //用新保存的词典创建新表
-                saveConfig(); //保存新设定
-                loadWordData(); //刷新新数据
-                resetStudyStats(); //重置
-                resetStudyStats(); //加载单词
+                saveConfig(); //保存当前词典的配置
+                if (currentWordList.size() > 0) { //检查是否有单词
+                    resetStudyStats(); //学习统计重置
+                    oadNextWord(); //加载第一个单词
+                    cardLayout.show(cardPanel, STUDY_PANEL); //显示学习的版面
+                }elese {
+                    JOptionPane.showMessageDialog(this, "所选词典没有单词，请先添加单词！", "提示", JOptionPane.WARNING_MESSAGE); //无词弹出提示
+                }
             }
         }
-    }
+                    
+            
