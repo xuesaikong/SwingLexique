@@ -570,7 +570,10 @@ public class MainWindow extends JFrame { // 常量定义
         totalStudied = 0; //学习单词总量0
         correctCount = 0; //正确总数0
         wrongCount = 0; //错误总数0
-        updateStudyStats(); //刷新
+        if (currentWordLabel != null) {
+            currentWordLabel.setForeground(UIManager.getColor("Label.foreground")); //重置后文本颜色为绿色
+        }
+        updateStudyStats(); //更新数据
     }
 
     private void updateStudyStats() { //更新学习统计
