@@ -399,7 +399,7 @@ public class MainWindow extends JFrame { // 常量定义
         
         wrongPanel.add(topPanel, BorderLayout.NORTH); //添加顶部面板于错题本页面
 
-        String[] columnNames = {"单词", "含义", "例句", "错误次数", "复习次数"}; //// 创建单词含义例句错误次数表格的表头
+        String[] columnNames = {"单词", "含义", "例句"}; //// 创建单词含义例句表格的表头
         wrongTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
