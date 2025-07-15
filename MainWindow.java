@@ -7,18 +7,22 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class MainWindow extends JFrame { // 常量定义
     private static final String HOME_PANEL = "主页"; //主页
     private static final String DICT_PANEL = "词表管理"; //词表管理
     private static final String STUDY_PANEL = "单词学习"; //单词学习
     private static final String WRONG_PANEL = "错题本"; //错题本
+    private static final String CONFIG_FILE = "config.properties"; //保存当前选择的文件路径
 
     private WordList currentWordList; //核心数据
     private String currentDictPath = "words.csv"; // 默认词典路径
@@ -52,6 +56,7 @@ public class MainWindow extends JFrame { // 常量定义
     private JPanel wrongPanel; //错题版主页面
     private JTable wrongTable; //错题表格
     private DefaultTableModel wrongTableModel; //错误表格数据
+    private JComboBox<String> wrongDictComboBox; // 错题本下拉选择框
 
     public MainWindow() { // 设置窗口标题和大小
         super("单词学习系统"); //标题
@@ -66,6 +71,8 @@ public class MainWindow extends JFrame { // 常量定义
         UIManger.put("TextArea.Font", globalFont);
         UIManger.put("Table.Font", globalFont);
         UIManger.put("ComboBox.Font", globalFont);
+
+        loadConfig(); //加载配置
         
         currentWordList = new WordList(currentDictPath); // 初始化单词列表
 
@@ -371,8 +378,23 @@ public class MainWindow extends JFrame { // 常量定义
         wrongPanel = new JPanel(new BorderLayout(10, 10)); //主面板，边距
         wrongPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //内边距
 
-        JPanel topPanel = new JPanel(new BorderLayout()); //顶部标题
-        JLabel titleLabel = new JLabel("错题本", JLabel.CENTER); //穿件标题标签
+        JPanel topPanel = new JPanel(new BorderLayout()); //顶部标题面板
+        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //左对齐面板 防止词典下拉框
+        dictSelectPanel.add(new JLabel("选择词典:")); //添加选择词典
+        wrongDictComboBox = new JComboBox<>(); //创建下拉框
+        wrongDictComboBox.setPreferredSize(new Dimension(200, 25)); //cchicun
+        wrongDictComboBox.addActionListener(e -> { //执行操作
+            if (wrongDictComboBox.getSelectedItem() != null) {
+                currentDictPath = wrongDictComboBox.getSelectedItem().toString(); //获取字典并更新
+                currentWordList = new WordList(currentDictPath); //根据所选创建新文件
+                saveConfig(); //保存
+                loadWrongWords(); //加载
+            }
+        });
+        dictSelectPanel.add(wrongDictComboBox); //下拉框添加至面板
+        topPanel.add(titleLabel, BorderLayout.CENTER); //面板放置在错题本页面左上
+        
+        JLabel titleLabel = new JLabel("错题本", JLabel.CENTER); //创建标题标签
         titleLabel.setFont(new Font("宋体", Font.BOLD, 24)); //字体及大小
         topPanel.add(titleLabel, BorderLayout.CENTER); //添加到中间位置
         
@@ -408,6 +430,7 @@ public class MainWindow extends JFrame { // 常量定义
     
     private void loadDictionaries() { //加载当前的目录中含有的词典
         dictComboBox.removeAllItems(); //清空下拉框原有项目
+        wrongDictComboBox.removeAllItems(); //清空
 
         File dir = new File("."); // 获取当前目录下
         File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".csv")); //筛选.csv文件
@@ -415,12 +438,42 @@ public class MainWindow extends JFrame { // 常量定义
         if (files != null) {
             for (File file : files) {
                 dictComboBox.addItem(file.getName()); //每个文件名添加到下拉列表框
+                wrongDictComboBox.addItem(file.getName()); //错词典名添加到错题本下拉框
             }
         }
 
         dictComboBox.setSelectedItem(currentDictPath); /// 设置当前词典
+        wrongDictComboBox.setSelectedItem(currentDictPath); //设置错误词典
     }
-    
+
+    private void loadConfig() {
+        Properties props = new Properties(); //创建存储
+        File configFile = new File(CONFIG_FILE); //创建File
+
+        if (configFile.exists()) { //文件存在
+            try (FileInputStream fis = new FileInputStream(configFile)) { //打开文件进行输入
+                props.load(fis); //文件内容放入加载
+                currentDictPath = props.getProperty("currentDictPath", "words.csv"); //进行读取 无则使用默认文件
+            } catch (IOException e) { //过程出错
+                e.printStackTrace(); //加载失败默认值
+                currentDictPath = "words.csv"; //出错 使用默认文件
+            }
+        }
+    }
+
+    private void createNewDictionary() { 
+        Properties props = new Properties(); //创建对象 用于保存
+        props.setProperty("currentDictPath", currentDictPath); 
+
+         try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE)) { //设置匹配项
+             props.store(fos, "Word Learning System Configuration"); //保存到文件
+
+         } catch (IOException e) {
+             e.printStackTrace();
+             JOptionPane.showMessageDialog(this, "保存配置失败：" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE); //错误后提示
+         }
+    }
+ 
     private void createNewDictionary() { //创建新词典文件
         String name = JOptionPane.showInputDialog(this, "请输入新词典名称（不含.csv）:", "新建词典", JOptionPane.QUESTION_MESSAGE); //提示输入词典名
         if (name != null && !name.trim().isEmpty()) { ////判断文件名是否有效
@@ -435,9 +488,11 @@ public class MainWindow extends JFrame { // 常量定义
             currentDictPath = dictName; //当前词典路径
             currentWordList = new WordList(currentDictPath); //创建新单词表
             currentWordList.saveToFile(); // 创建（空）文件
-            
+
+            saveConfig(); //保存当前词典配置
             loadDictionaries(); //刷新下拉框内容
             dictComboBox.setSelectedItem(currentDictPath); //选中新建词典
+            wrongDictComboBox.setSelectedItem(currentDictPath); //下拉框的选中项设置为当前的词典存储路径
             loadWordData(); //加载新数据
         }
     }
@@ -694,6 +749,7 @@ public class MainWindow extends JFrame { // 常量定义
             if (word.getWord().equals(wordText)) {
                 word.setWrongCount(0); //改单词错误数0
                 currentWordList.saveToFile(); //保存更改
+                saveConfig(); //保存当前词典
                 loadWrongWords(); //刷新
                 return;
             }
