@@ -75,8 +75,9 @@ public class MainWindow extends JFrame { // 常量定义
         loadConfig(); //加载配置
         
         currentWordList = new WordList(currentDictPath); // 初始化单词列表
-
-        initComponents();     // 初始化界面组件
+        
+        initComponents(); // 初始化界面组件
+        loadDictionaries(); //加载所有字典
     }
 
     private void initComponents() { // 创建菜单栏
