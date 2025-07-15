@@ -123,13 +123,12 @@ public class MainWindow extends JFrame { // 常量定义
         
         JMenuItem studyItem = new JMenuItem(STUDY_PANEL); 
         studyItem.addActionListener(e -> {
-            if (currentWordList.size() > 0) { //检验是否有单词
-                resetStudyStats(); //学习数据重制
-                loadNextWord(); //单词继续加载
-                cardLayout.show(cardPanel, STUDY_PANEL); //切换学习页面
-            } else {
-                JOptionPane.showMessageDialog(this, "当前词典没有单词，请先添加单词！", "提示", JOptionPane.WARNING_MESSAGE); //没有单词时提示
-            }
+            showDictionarySelectionDialog(); //弹出窗口
+        });
+
+        JMenuItem reviewItem = new JMenuItem("单词复习"); 
+        reviewItem.addActionListener(e -> {
+            showReviewDictionarySelectionDialog(); //弹出窗口选择词表进行复习
         });
         
         JMenuItem wrongItem = new JMenuItem(WRONG_PANEL);
