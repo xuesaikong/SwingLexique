@@ -860,12 +860,44 @@ public class MainWindow extends JFrame { // 常量定义
                 saveConfig(); //保存当前词典的配置
                 if (currentWordList.size() > 0) { //检查是否有单词
                     resetStudyStats(); //学习统计重置
-                    oadNextWord(); //加载第一个单词
+                    loadNextWord(); //加载第一个单词
                     cardLayout.show(cardPanel, STUDY_PANEL); //显示学习的版面
-                }elese {
+                } else {
                     JOptionPane.showMessageDialog(this, "所选词典没有单词，请先添加单词！", "提示", JOptionPane.WARNING_MESSAGE); //无词弹出提示
                 }
             }
         }
-                    
-            
+
+        private void showReviewDictionarySelectionDialog() { //创建
+            String[] dictNames = new String[dictComboBox.getItemCount()]; //保存词典名
+            for (int i = 0; i < dictComboBox.getItemCount(); i++) {
+                dictNames[i] = dictComboBox.getItemAt(i); //存入名称
+            }
+
+            String selectedDict = (String) JOptionPane.showInputDialog(
+                this,
+                "请选择要复习错题的词典:",
+                "选择词典",
+                JOptionPane.QUESTION_MESSAGE, //弹出对话框用问号
+                null,
+                dictNames, //提供词典
+                currentDictPath //默认词典
+            };
+
+            if (selectedDict != null) { //选择执行
+                currentDictPath = selectedDict; //词典路径为所选
+                currentWordList = new WordList(currentDictPath); //新词典
+                saveConfig(); //保存当前词典配置
+
+                List<Word> wrongWords = currentWordList.getWrongWordsList(); //获取错词
+                if (wrongWords.size() > 0) { //有错词进入复习
+                    resetStudyStats(); //学习重置
+                    loadNextWrongWord(); //加载错词
+                    cardLayout.show(cardPanel, STUDY_PANEL); //学习面板显示
+                } else {
+                    JOptionPane.showMessageDialog(this, "所选词典没有错题记录，请先进行单词学习！", "提示", JOptionPane.WARNING_MESSAGE); //弹出提示
+                }
+            }
+        }
+    } 
+         
