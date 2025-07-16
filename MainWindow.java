@@ -889,6 +889,7 @@ public class MainWindow extends JFrame { // 常量定义
                 currentWordList = new WordList(currentDictPath); //用新保存的词典创建新表
                 saveConfig(); //保存当前词典的配置
                 if (currentWordList.size() > 0) { //检查是否有单词
+                    isReviewMode = false; //设置为学习模式
                     resetStudyStats(); //学习统计重置
                     loadNextWord(); //加载第一个单词
                     cardLayout.show(cardPanel, STUDY_PANEL); //显示学习的版面
@@ -918,9 +919,9 @@ public class MainWindow extends JFrame { // 常量定义
                 currentDictPath = selectedDict; //词典路径为所选
                 currentWordList = new WordList(currentDictPath); //新词典
                 saveConfig(); //保存当前词典配置
-
                 List<Word> wrongWords = currentWordList.getWrongWordsList(); //获取错词
                 if (wrongWords.size() > 0) { //有错词进入复习
+                    isReviewMode = true; //设置为复习模式
                     resetStudyStats(); //学习重置
                     loadNextWrongWord(); //加载错词
                     cardLayout.show(cardPanel, STUDY_PANEL); //学习面板显示
