@@ -145,6 +145,7 @@ public class MainWindow extends JFrame { // 常量定义
         pageMenu.add(homeItem); //主页添加到页面菜单
         pageMenu.add(dictItem); //词典添加到页面菜单
         pageMenu.add(studyItem); //学习添加到页面菜单
+        pageMenu.add(reviewItem); //学习添加到页面菜单
         pageMenu.add(wrongItem); //错题本添加到页面菜单
         
         menuBar.add(fileMenu);
@@ -170,11 +171,15 @@ public class MainWindow extends JFrame { // 常量定义
                 g2d.dispose(); //释放
             }
         };
-                
+
+        JPanel titlePanel = new JPanel(new BorderLayout()); //创建面板
+        titlePanel.setOpaque(false); //背景透明
+        titlePanel.setBorder(new EmptyBorder(30, 20, 20, 20)); //边距
+        
         JLabel titleLabel = new JLabel("单词学习系统", JLabel.CENTER); //顶部标题
-        subtitleLabel.setFont(new Font("微软雅黑", Font.PLAIN, 42)); //字体大小
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 42)); //字体大小
         titleLabel.setForeground(new Color(25, 25, 112)); //颜色
-        titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0)); //内边距
+        titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0)); //边距
         
         JLabel subtitleLabel = new JLabel("提升您的词汇量，轻松学习新单词", JLabel.CENTER); //副标题
         subtitleLabel.setFont(new Font("微软雅黑", Font.PLAIN, 18)); 
@@ -218,12 +223,7 @@ public class MainWindow extends JFrame { // 常量定义
         buttonPanel.add(wrongButton); //添加错题本按钮
         
         homePanel.add(buttonPanel, BorderLayout.CENTER); //以上按钮添加至主页
-
-        JLabel copyrightLabel = new JLabel("© 2023 单词学习系统 - 版本 1.0", JLabel.CENTER);
-        copyrightLabel.setFont(new Font("微软雅黑", Font.PLAIN, 12));
-        copyrightLabel.setForeground(new Color(105, 105, 105));
-        copyrightLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
-        homePanel.add(copyrightLabel, BorderLayout.SOUTH); //以上为版权信息
+        
     }
 
     private JButton createStyledButton(String text, Color baseColor) {
@@ -270,41 +270,88 @@ public class MainWindow extends JFrame { // 常量定义
                 button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); //悬停效果 光标变手型
             }
         });
+
+        return button;
+    }
                 
-    private void createDictPanel() { //创建此表管理界面
-        dictPanel = new JPanel(new BorderLayout(10, 10)); //字体和大小
-        dictPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //内边距
+    private void createDictPanel() { //创建词表管理界面
+        dictPanel = new JPanel(new BorderLayout(10, 10)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //自定义面板实现渐变
 
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(240, 248, 255),
+                    0, getHeight(), new Color(176, 224, 230) //顶部到底部渐变
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g2d.dispose();
+            }
+        };
+        dictPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); //边距
+        
         JPanel topPanel = new JPanel(new BorderLayout()); //顶部面板
+        topPanel.setOpaque(false); //透明背景
 
-        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // 词典选择面板
-        dictSelectPanel.add(new JLabel("选择词典:")); //添加选择词典标签
+        JLabel titleLabel = new JLabel("词表管理", JLabel.CENTER); //词表标题标签
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 28)); //字体大小
+        titleLabel.setForeground(new Color(25, 25, 112)); //颜色
+        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0)); //边距
+        topPanel.add(titleLabel, BorderLayout.NORTH); //添加至顶部
+        
+        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5)); //词典选择面板
+        dictSelectPanel.setOpaque(false); //透明背景
+        
+        JLabel selectLabel = new JLabel("选择词典:"); //创建标签
+        selectLabel.setFont(new Font("微软雅黑", Font.BOLD, 14)); //字体大小
+        selectLabel.setForeground(new Color(70, 130, 180)) //颜色
+        dictSelectPanel.add(selectLabel); //添加到面板
+        
         dictComboBox = new JComboBox<>(); //创建下拉框选择词典
-        dictComboBox.setPreferredSize(new Dimension(200, 25)); //宽高
+        dictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14)); //字体大小
+        dictComboBox.setPreferredSize(new Dimension(220, 30)); //尺寸
+        ictComboBox.setBackground(Color.WHITE); //颜色
         dictComboBox.addActionListener(e -> {
             if (dictComboBox.getSelectedItem() != null) {
                 currentDictPath = dictComboBox.getSelectedItem().toString(); //词典路径
                 currentWordList = new WordList(currentDictPath); //加载对应词典
+                saveConfig(); //保存
                 loadWordData(); //加载词典内容到表格
             }
         });
         dictSelectPanel.add(dictComboBox); //左侧区域添加下拉框
         
-        JButton newDictButton = new JButton("新建词典"); //新建词典按钮
+        JButton newDictButton = createSmallButton("新建词典", new Color(65, 105, 225)); //新建按钮
         newDictButton.addActionListener(e -> createNewDictionary()); //调用新建词典
         dictSelectPanel.add(newDictButton);
 
-        JButton deleteDictButton = new JButton("删除词典"); //新建删除字典按钮
+        JButton deleteDictButton = createSmallButton("删除词典", new Color(205, 92, 92)); //删除字典按钮
         deleteDictbutton.addActionListener(e -> createNewDictionary()); //调用删除字典
         dictSelectPanel.add(deleteDictButton); //按钮谈驾到词典选择的面板上
         
         topPanel.add(dictSelectPanel, BorderLayout.WEST); //左侧词典选择区域加入顶部面板
 
-        JButton homeButton = new JButton("返回主页"); //返回主页按钮
+        JButton homeButton = createSmallButton("返回主页", new Color(70, 130, 180)); //返回主页按钮
         homeButton.addActionListener(e -> cardLayout.show(cardPanel, HOME_PANEL)); //切换主页
-        topPanel.add(homeButton, BorderLayout.EAST); //添加到主页面板右侧
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); //创建面板右对齐
+        rightPanel.setOpaque(false); //透明背景
+        rightPanel.add(homeButton); //首页按钮添加到面板
+        topPanel.add(rightPanel, BorderLayout.EAST); //右面板添加到右边
         
         dictPanel.add(topPanel, BorderLayout.NORTH); //顶部加入到词典主页面
+
+        JPanel tablePanel = new JPanel(new BorderLayout()); //创建新面板
+        tablePanel.setOpaque(false); //透明背景
+        tablePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); //边距
+
+        JLabel tableTitle = new JLabel("词表内容", JLabel.LEFT); //标题 
+        tableTitle.setFont(new Font("微软雅黑", Font.BOLD, 16)); //字体
+        tableTitle.setForeground(new Color(25, 25, 112)); //颜色
+        tablePanel.add(tableTitle, BorderLayout.NORTH); //添加到顶部面板
         
         String[] columnNames = {"单词", "含义", "例句",}; //创建表格
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -313,28 +360,81 @@ public class MainWindow extends JFrame { // 常量定义
                 return false;  // 表格不可编辑
             }
         };
-
         wordTable = new JTable(tableModel); //创建表格
+        wordTable.setFont(new Font("微软雅黑", Font.PLAIN, 14)); //字体
+        wordTable.setRowHeight(25);
         wordTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //允许多选
-        JScrollPane scrollPane = new JScrollPane(wordTable); //创建滚动条
-        dictPanel.add(scrollPane, BorderLayout.CENTER); //添加表格到中部区域
+        wordTable.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14)); 字体
+        wordTable.getTableHeader().setBackground(new Color(240, 248, 255)); //颜色
+        wordTable.setSelectionBackground(new Color(176, 224, 230, 100)); //背景颜色
+        wordTable.setGridColor(new Color(230, 230, 250)); //网格颜色
 
-        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
-        inputPanel.setBorder(BorderFactory.createTitledBorder("添加/编辑单词")); //创建输入
+        wordTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+        wordTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+        wordTable.getColumnModel().getColumn(2).setPreferredWidth(350); //表格设置
 
-        inputPanel.add(new JLabel("单词:")); 
-        wordField = new JTextField();
-        inputPanel.add(wordField); //单词输入
+        JScrollPane scrollPane = new JScrollPane(wordTable); //滚动功能
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(176, 224, 230), 1)); //颜色边框
+        tablePanel.add(scrollPane, BorderLayout.CENTER); //添加至中心位置
 
-        inputPanel.add(new JLabel("含义:"));
+        dictPanel.add(tablePanel, BorderLayout.CENTER); //添加到中心位置
+
+        JPanel bottomPanel = new JPanel(new BorderLayout(0, 10)); //底部面板
+        bottomPanel.setOpaque(false); //透明背景
+
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 10, 10)); //面板
+        inputPanel.setOpaque(false); //透明
+        inputPanel.setBorder(BorderFactory.createTitledBorder( //边框
+            BorderFactory.createLineBorder(new Color(70, 130, 180), 1), //设置
+            "添加/编辑单词",
+            javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, //对齐方式
+            javax.swing.border.TitledBorder.DEFAULT_POSITION, //位置
+            new Font("微软雅黑", Font.BOLD, 14), //字体
+            new Color(25, 25, 112) 颜色
+        )};
+
+        JLabel wordLabel = new JLabel("单词:"); //标签
+        wordLabel.setFont(new Font("微软雅黑", Font.BOLD, 14)); //字体
+        wordLabel.setForeground(new Color(70, 130, 180)); //颜色
+        inputPanel.add(wordLabel); //添加到面板中
+
+        wordField = new JTextField();  文本框
+        wordField.setFont(new Font("微软雅黑", Font.PLAIN, 14)); //字体
+        wordField.setBorder(BorderFactory.createCompoundBorder( //符合边框
+            BorderFactory.createLineBorder(new Color(176, 224, 230), 1), //外边框
+            BorderFactory.createEmptyBorder(5, 5, 5, 5) //内边框
+        ));
+        inputPanel.add(wordField); //添加输入框
+
+        JLabel meaningLabel = new JLabel("含义:");
+        meaningLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        meaningLabel.setForeground(new Color(70, 130, 180)); 
+        inputPanel.add(meaningLabel)
+
         meaningField = new JTextField();
-        inputPanel.add(meaningField); //中文释义输入
+        meaningField.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        meaningField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(176, 224, 230), 1),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        inputPanel.add(meaningField); //同单词板块一样 由于时间紧迫 不再赘述
 
-        inputPanel.add(new JLabel("例句:"));
+        JLabel exampleLabel = new JLabel("例句:");
+        exampleLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        exampleLabel.setForeground(new Color(70, 130, 180));
+        inputPanel.add(exampleLabel);
+
         exampleField = new JTextField();
-        inputPanel.add(exampleField); //例句输入
+        exampleField.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        exampleField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(176, 224, 230), 1),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        inputPanel.add(exampleField); //同单词板块一样 由于时间紧迫 不再赘述
         
-        JPanel buttonPanel = new JPanel(new FlowLayout()); //创建按钮面板
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); //按钮面板
+        buttonPanel.setOpaque(false); //透明
+
         JButton addButton = new JButton("添加单词"); //添加单词按钮
         addButton.addActionListener(e -> addWord()); //添加单词
         buttonPanel.add(addButton); //添加单词按钮添加到底部
@@ -354,15 +454,62 @@ public class MainWindow extends JFrame { // 常量定义
         JButton importButton = new JButton("批量导入"); //批量导入按钮
         importButton.addActionListener(e -> importFromCSV()); //用csv方法进行导入
         buttonPanel.add(importButton); //批量导入按钮到底部
-        
-        JPanel bottomPanel = new JPanel(new BorderLayout()); //底部面板 边界布局 放置输入和按钮
+
         bottomPanel.add(inputPanel, BorderLayout.CENTER); //单词中文释义例句放在面板底部居中
         bottomPanel.add(buttonPanel, BorderLayout.SOUTH);  //添加编辑删除放在底部区域
 
         dictPanel.add(bottomPanel, BorderLayout.SOUTH); //底部面板添加到词典管理底部
     }
 
-    private void createStudyPanel() { //创建单词学习主页版
+private JButton createSmallButton(String text, Color baseColor) { //创建按钮
+    JButton button = new JButton(text) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //自定义绘制图形
+
+            GradientPaint gradient = new GradientPaint(
+                0, 0, baseColor.brighter(),
+                0, getHeight(), baseColor //颜色
+            );
+            g2d.setPaint(gradient);
+
+            g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 15, 15));
+
+            g2d.setColor(baseColor.darker());
+            g2d.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 15, 15)); //绘制
+
+            g2d.dispose(); //释放资源
+
+            super.paintComponent(g);
+        }
+    };
+
+    button.setFont(new Font("微软雅黑", Font.BOLD, 14)); //字体
+    button.setForeground(Color.WHITE); //颜色
+    button.setFocusPainted(false); //禁用
+    button.setBorderPainted(false); //禁用按钮默认边框
+    button.setContentAreaFilled(false); //不使用默认填充
+    button.setOpaque(false); //透明
+
+    button.setPreferredSize(new Dimension(100, 30)); //按钮尺寸
+    
+    button.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+             button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+    });
+
+        return button
+}
+
+private void createStudyPanel() { //创建学习页面
         studyPanel = new JPanel(new BorderLayout(10, 10)); //边界布局
         studyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //边框留白
 
@@ -463,6 +610,7 @@ public class MainWindow extends JFrame { // 常量定义
             showStudyResult(); //显示学习结果
             cardLayout.show(cardPanel, HOME_PANEL); //返回主页
         });
+        bottomPanel.add(exitButton); //添加到面板
         
         studyPanel.add(bottomPanel, BorderLayout.SOUTH); //将底部面板添加到学习页面底部
     }
@@ -472,6 +620,7 @@ public class MainWindow extends JFrame { // 常量定义
         wrongPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //内边距
 
         JPanel topPanel = new JPanel(new BorderLayout()); //顶部标题面板
+        
         JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //左对齐面板 防止词典下拉框
         dictSelectPanel.add(new JLabel("选择词典:")); //添加选择词典
         wrongDictComboBox = new JComboBox<>(); //创建下拉框
@@ -485,6 +634,7 @@ public class MainWindow extends JFrame { // 常量定义
             }
         });
         dictSelectPanel.add(wrongDictComboBox); //下拉框添加至面板
+        
         topPanel.add(titleLabel, BorderLayout.CENTER); //面板放置在错题本页面左上
         
         JLabel titleLabel = new JLabel("错题本", JLabel.CENTER); //创建标题标签
@@ -560,7 +710,6 @@ public class MainWindow extends JFrame { // 常量定义
 
          try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE)) { //设置匹配项
              props.store(fos, "Word Learning System Configuration"); //保存到文件
-
          } catch (IOException e) {
              e.printStackTrace();
              JOptionPane.showMessageDialog(this, "保存配置失败：" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE); //错误后提示
@@ -751,6 +900,7 @@ public class MainWindow extends JFrame { // 常量定义
 
         nextButton.setEnabled(false); //禁用下一个按钮
     }
+        
     private void loadNextWrongWord() {
         List<Word> wrongWords = currentWordList.getWrongWordsList(); //获取错词
         if (wrongWords.isEmpty()) { //没有错词
@@ -865,7 +1015,6 @@ public class MainWindow extends JFrame { // 常量定义
             if (word.getWord().equals(wordText)) {
                 word.setWrongCount(0); //改单词错误数0
                 currentWordList.saveToFile(); //保存更改
-                saveConfig(); //保存当前词典
                 loadWrongWords(); //刷新
                 return;
             }
@@ -882,6 +1031,7 @@ public class MainWindow extends JFrame { // 常量定义
         int confirm = JOptionPane.showConfirmDialog(this, 
             "确定要删除词典 '" + dictName + "' 吗？此操作不可恢复！", //弹出提示
             "确认删除", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE); //操作不可删除
+        
         if (confirm == JOptionPane.YES_OPTION) { //确定
             File dictFile = new File(dictName);
             if (dictFile.exists() && dictFile.delete()) { //存在且删除成功
@@ -893,10 +1043,12 @@ public class MainWindow extends JFrame { // 常量定义
                     dictComboBox.setSelectedIndex(0); //选择第一个字典
                     currentDictPath = dictComboBox.getSelectedItem().toString(); //更新当前词典路径
                     currentWordList = new WordList(currentDictPath); //加载内容
+                    saveConfig(); //保存当前词典配置
                 } else {
                     currentDictPath = "words.csv"; //无词典创建新的
                     currentWordList = new WordList(currentDictPath); 
                     currentWordList.saveToFile(); //保存
+                    saveConfig(); //保存当前词典配置
                     loadDictionaries(); //加载新的
                 }
 
@@ -962,8 +1114,8 @@ public class MainWindow extends JFrame { // 常量定义
         }
 
         return str //不满足 返回
-
     }
+            
     private void showDictionarySelectionDialog() { //创建数组
             String[] dictNames = new String[dictComboBox.getItemCount()]; 
             for (int i = 0; i < dictComboBox.getItemCount(); i++) {
@@ -1012,12 +1164,13 @@ public class MainWindow extends JFrame { // 常量定义
                 null,
                 dictNames, //提供词典
                 currentDictPath //默认词典
-            };
+            );
 
             if (selectedDict != null) { //选择执行
                 currentDictPath = selectedDict; //词典路径为所选
                 currentWordList = new WordList(currentDictPath); //新词典
                 saveConfig(); //保存当前词典配置
+                
                 List<Word> wrongWords = currentWordList.getWrongWordsList(); //获取错词
                 if (wrongWords.size() > 0) { //有错词进入复习
                     isReviewMode = true; //设置为复习模式
