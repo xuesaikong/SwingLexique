@@ -156,7 +156,7 @@ public class MainWindow extends JFrame { // 常量定义
         titleLabel.setFont(new Font("宋体", Font.BOLD, 36)); //字体和大小
         homePanel.add(titleLabel, BorderLayout.NORTH); //位于顶部
         
-        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 30));
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 30)); //按钮布局
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 150, 50, 150)); // 创建功能按钮面板，距离内边距
         
         JButton dictButton = new JButton("词表管理"); //词表顶部标题
@@ -172,7 +172,12 @@ public class MainWindow extends JFrame { // 常量定义
         studyButton.addActionListener(e -> {
             showDictionarySelectionDialog(); //弹出选择词表的窗口
         });
-        
+
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 30)); //单词复习按钮
+        reviewButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体大小
+        reviewButton.addActionListener(e -> {
+            showReviewDictionarySelectionDialog(); //弹出选择窗口
+        });
         JButton wrongButton = new JButton("错题本"); //创建错题本
         wrongButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体和大小
         wrongButton.addActionListener(e -> { 
@@ -182,6 +187,7 @@ public class MainWindow extends JFrame { // 常量定义
         
         buttonPanel.add(dictButton); //添加词表管理按钮
         buttonPanel.add(studyButton); //添加单词学习按钮
+        buttonPanel.add(reviewButton); //添加复习按钮
         buttonPanel.add(wrongButton); //添加错题本按钮
         
         homePanel.add(buttonPanel, BorderLayout.CENTER); //以上按钮添加至主页
