@@ -380,6 +380,12 @@ public class MainWindow extends JFrame { // 常量定义
             nextButton.setEnabled(false); //再次不可点击，等待新回答
         });
         bottomPanel.add(nextButton); //添加按钮到底部面板
+
+        JButton exitButton = new JButton("退出学习"); //退出学习按钮
+        exitButton.addActionListener(e -> {
+            showStudyResult(); //显示学习结果
+            cardLayout.show(cardPanel, HOME_PANEL); //返回主页
+        });
         
         studyPanel.add(bottomPanel, BorderLayout.SOUTH); //将底部面板添加到学习页面底部
     }
