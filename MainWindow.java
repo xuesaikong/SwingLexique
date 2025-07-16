@@ -52,6 +52,7 @@ public class MainWindow extends JFrame { // 常量定义
     private int correctCount = 0; //正确数量总数
     private int wrongCount = 0; //错误总数
     private Word currentWord; //正在学习单词
+    private boolean isReviewMode = false; //是否为复习模式
     
     private JPanel wrongPanel; //错题版主页面
     private JTable wrongTable; //错题表格
@@ -360,7 +361,11 @@ public class MainWindow extends JFrame { // 常量定义
         nextButton = new JButton("下一个"); //创建下一个按钮
         nextButton.setEnabled(false); //初始不可点击
         nextButton.addActionListener(e -> {
-            loadNextWord(); //加载下一个单词
+            if (isReviewMode) { //复习模式
+                loadNextWrongWord(); //下一个错词词
+            } else {
+                loadNextWord(); //普通单词
+            }
             nextButton.setEnabled(false); //再次不可点击，等待新回答
         });
         bottomPanel.add(nextButton); //添加按钮到底部面板
