@@ -904,9 +904,7 @@ public class MainWindow extends JFrame { // 常量定义
                     resetStudyStats(); //学习统计重置
                     loadNextWord(); //加载第一个单词
 
-                    JLabel titleLabel = new JLabel("单词学习模式 - " + currentDictPath, JLabel.CENTER); //设置标题
-                    titleLabel.setFont(new Font("宋体", Font.BOLD, 16)); //字体大小
-                    studyPanel.add(titleLabel, BorderLayout.PAGE_START); //添加到学习区域
+                    titleLabel.setText("单词学习模式 - " + currentDictPath); //更新标题
                     
                     cardLayout.show(cardPanel, STUDY_PANEL); //显示学习的版面
                 } else {
@@ -941,9 +939,7 @@ public class MainWindow extends JFrame { // 常量定义
                     resetStudyStats(); //学习重置
                     loadNextWrongWord(); //加载错词
 
-                    JLabel titleLabel = new JLabel("单词复习模式 - " + currentDictPath, JLabel.CENTER); //设置标题
-                    titleLabel.setFont(new Font("宋体", Font.BOLD, 16)); //字体大小
-                    studyPanel.add(titleLabel, BorderLayout.PAGE_START); //添加到学习区域
+                    titleLabel.setText("单词学习模式 - " + currentDictPath); //更新标题
                     
                     cardLayout.show(cardPanel, STUDY_PANEL); //学习面板显示
                 } else {
