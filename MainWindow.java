@@ -313,8 +313,8 @@ public class MainWindow extends JFrame { // 常量定义
         statsPanel.add(wrongCountLabel);
         
         topPanel.add(statsPanel, BorderLayout.WEST); //以上统计信息添加到左侧
-        
-        JButton homeButton = new JButton("返回主页"); //返回主页按钮
+
+        JButton homeButton = new JButton("退出学习"); //返回主页按钮
         homeButton.addActionListener(e -> {
             showStudyResult(); //当前学习结果
             cardLayout.show(cardPanel, HOME_PANEL); //转到主页
@@ -414,7 +414,7 @@ public class MainWindow extends JFrame { // 常量定义
         
         wrongPanel.add(topPanel, BorderLayout.NORTH); //添加顶部面板于错题本页面
 
-        String[] columnNames = {"单词", "含义", "例句"}; //// 创建单词含义例句表格的表头
+        String[] columnNames = {"单词", "含义", "例句", "答错次数", "复习次数"}; //创建表格
         wrongTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -740,7 +740,9 @@ public class MainWindow extends JFrame { // 常量定义
             Object[] rowData = {
                 word.getWord(), 
                 word.getMeaning(),
-                word.getExample()
+                word.getExample(),
+                word.getWrongCount(),
+                word.getReviewCount()
             };
             wrongTableModel.addRow(rowData); //错题（包括以上单词中文释义例句错误数量复习情况信息）加入表格
         }
