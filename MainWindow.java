@@ -40,6 +40,7 @@ public class MainWindow extends JFrame { // 常量定义
     private JTextField exampleField; //例句文本框
    
     private JPanel studyPanel; //学习面板
+    private JLabel titleLabel; //标签标题
     private JLabel totalWordsLabel; //已学习的单词数量
     private JLabel correctCountLabel; //回答正确的数量
     private JLabel wrongCountLabel; //回答错误的数量
