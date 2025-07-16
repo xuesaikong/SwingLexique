@@ -26,13 +26,10 @@ public class MainWindow extends JFrame { // 常量定义
     private static final String STUDY_PANEL = "单词学习"; //单词学习
     private static final String WRONG_PANEL = "错题本"; //错题本
     private static final String CONFIG_FILE = "config.properties"; //保存当前选择的文件路径
-
     private WordList currentWordList; //核心数据
     private String currentDictPath = "words.csv"; // 默认词典路径
-
-    private JPanel cardPanel; //卡片布局 各个功能面板
+    private JPanel cardPanel; //卡片布局 各个功能面板 
     private CardLayout cardLayout; //不同功能界面切换
- 
     private JPanel homePanel; //主页界面
     private JPanel dictPanel; //词库管理面板
     private JTable wordTable; //显示单词列表表格
@@ -41,7 +38,6 @@ public class MainWindow extends JFrame { // 常量定义
     private JTextField wordField; //单词文本框
     private JTextField meaningField; //释义文本框
     private JTextField exampleField; //例句文本框
-   
     private JPanel studyPanel; //学习面板
     private JLabel titleLabel; //标签标题
     private JLabel totalWordsLabel; //已学习的单词数量
@@ -56,8 +52,7 @@ public class MainWindow extends JFrame { // 常量定义
     private int correctCount = 0; //正确数量总数
     private int wrongCount = 0; //错误总数
     private Word currentWord; //正在学习单词
-    private boolean isReviewMode = false; //是否为复习模式
-    
+    private boolean isReviewMode = false; //是否为复习模式 
     private JPanel wrongPanel; //错题版主页面
     private JTable wrongTable; //错题表格
     private DefaultTableModel wrongTableModel; //错误表格数据
@@ -86,6 +81,7 @@ public class MainWindow extends JFrame { // 常量定义
     }
 
     private void initComponents() { // 创建菜单栏
+        
         createMenuBar();
 
         cardLayout = new CardLayout(); //布局切换
@@ -518,8 +514,6 @@ private void createStudyPanel() { //创建学习页面
         studyPanel.add(titleLabel, BorderLayout.PAGE_START); //添加到学习区域
 
         JPanel topPanel = new JPanel(new BorderLayout()); // 进行面板创建
-        
-        JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //统计信息区域创建总单词 已学习 答错数据 居左
         statsPanel.add(new JLabel("总单词数:")); //总单词书静态
         totalWordsLabel = new JLabel("0"); //更新总数
         statsPanel.add(totalWordsLabel);
@@ -616,16 +610,46 @@ private void createStudyPanel() { //创建学习页面
     }
    
     private void createWrongPanel() { //创建错题本页面
-        wrongPanel = new JPanel(new BorderLayout(10, 10)); //主面板，边距
-        wrongPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //内边距
+        wrongPanel = new JPanel(new BorderLayout(10, 10)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //渐变背景
+
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(255, 248, 220), // Cornsilk
+                    0, getHeight(), new Color(255, 222, 173) //颜色
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g2d.dispose();
+            }
+        };
+        wrongPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); //边距
 
         JPanel topPanel = new JPanel(new BorderLayout()); //顶部标题面板
+        topPanel.setOpaque(false); //透明
+
+        JLabel titleLabel = new JLabel("错题本", JLabel.CENTER); //创建标签
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(139, 69, 19)); // 颜色
+        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0)); //边距
+        topPanel.add(titleLabel, BorderLayout.NORTH); //标签添加到上部
         
-        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //左对齐面板 防止词典下拉框
-        dictSelectPanel.add(new JLabel("选择词典:")); //添加选择词典
-        wrongDictComboBox = new JComboBox<>(); //创建下拉框
-        wrongDictComboBox.setPreferredSize(new Dimension(200, 25)); //cchicun
-        wrongDictComboBox.addActionListener(e -> { //执行操作
+        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5)); //词典选择的面板
+        dictSelectPanel.setOpaque(false); //背景透明
+        
+        JLabel selectLabel = new JLabel("选择词典:"); //创建标签
+        selectLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        selectLabel.setForeground(new Color(160, 82, 45));
+         dictSelectPanel.add(selectLabel);
+        
+        wrongDictComboBox = new JComboBox<>(); //下拉框
+        wrongDictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        wrongDictComboBox.setPreferredSize(new Dimension(220, 30)); //尺寸
+        wrongDictComboBox.setBackground(Color.WHITE);
+        wrongDictComboBox.addActionListener(e -> {
             if (wrongDictComboBox.getSelectedItem() != null) {
                 currentDictPath = wrongDictComboBox.getSelectedItem().toString(); //获取字典并更新
                 currentWordList = new WordList(currentDictPath); //根据所选创建新文件
@@ -636,16 +660,23 @@ private void createStudyPanel() { //创建学习页面
         dictSelectPanel.add(wrongDictComboBox); //下拉框添加至面板
         
         topPanel.add(titleLabel, BorderLayout.CENTER); //面板放置在错题本页面左上
+        homeButton.addActionListener(e -> cardLayout.show(cardPanel, HOME_PANEL));
         
-        JLabel titleLabel = new JLabel("错题本", JLabel.CENTER); //创建标题标签
-        titleLabel.setFont(new Font("宋体", Font.BOLD, 24)); //字体及大小
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); //创建面板
+        rightPanel.setOpaque(false); //透明
+        rightPanel.add(homeButton); //添加面板中
+        topPanel.add(rightPanel, BorderLayout.EAST); //添加到顶部面板右侧
+        
         topPanel.add(titleLabel, BorderLayout.CENTER); //添加到中间位置
         
         JButton homeButton = new JButton("返回主页"); //创建返回主页按钮
         homeButton.addActionListener(e -> cardLayout.show(cardPanel, HOME_PANEL)); //返回首页
         topPanel.add(homeButton, BorderLayout.EAST); //添加到右侧
         
-        wrongPanel.add(topPanel, BorderLayout.NORTH); //添加顶部面板于错题本页面
+        JLabel tableTitle = new JLabel("错题列表", JLabel.LEFT); //创建标签
+        tableTitle.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        tableTitle.setForeground(new Color(139, 69, 19));
+        tablePanel.add(tableTitle, BorderLayout.NORTH);
 
         String[] columnNames = {"单词", "含义", "例句", "答错次数", "复习次数"}; //创建表格
         wrongTableModel = new DefaultTableModel(columnNames, 0) {
@@ -654,21 +685,88 @@ private void createStudyPanel() { //创建学习页面
                 return false;  //表格不可编辑
             }
         };
+        
         wrongTable = new JTable(wrongTableModel); //创建表格
+        wrongTable.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        wrongTable.setRowHeight(25);
+        wrongTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //单项选择模式
+        wrongTable.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14));
+        wrongTable.getTableHeader().setBackground(new Color(255, 248, 220));
+        wrongTable.setSelectionBackground(new Color(255, 222, 173, 100));
+        wrongTable.setGridColor(new Color(222, 184, 135));
+
+        wrongTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+        wrongTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+        wrongTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+        wrongTable.getColumnModel().getColumn(3).setPreferredWidth(80);
+        wrongTable.getColumnModel().getColumn(4).setPreferredWidth(80); //以上为宽度
+        
         JScrollPane scrollPane = new JScrollPane(wrongTable); //添加滚条
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(222, 184, 135), 1));
         wrongPanel.add(scrollPane, BorderLayout.CENTER); //添加表格到页面中样
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // 创建按钮面板
+         wrongPanel.add(tablePanel, BorderLayout.CENTER); //添加到中间区域
         
-        JButton exportButton = new JButton("导出错题"); //创建导出错题按钮
-        exportButton.addActionListener(e -> exportWrongWords()); //点击后使用
-        buttonPanel.add(exportButton); //添加到按钮版面中
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10)); //按钮面板
+        buttonPanel.setOpaque(false); //透明
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); //顶部边距为10
+
+        JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //创建面板
+        statsPanel.setOpaque(false); //透明
+
+        JLabel statsLabel = new JLabel("错题统计: "); //错题统计面板
+        statsLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        statsLabel.setForeground(new Color(139, 69, 19));
+        statsPanel.add(statsLabel); //添加到统计面板中
+
+        JLabel countLabel = new JLabel("0 个单词"); //初始值为零0
+        countLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        statsPanel.add(countLabel);
+
+        Runnable updateStats = () -> {
+            int count = wrongTableModel.getRowCount();
+            countLabel.setText(count + " 个单词"); //单词数
+        };
+
+        updateStats.run();
+
+        JButton exportButton = createSmallButton("导出错题", new Color(210, 105, 30)); //导出错题按钮
+        exportButton.addActionListener(e -> {
+            exportWrongWords();
+            updateStats.run(); //重新统计
+        });   
         
-        JButton removeButton = new JButton("移出错题本"); //创建移出错题本按钮
-        removeButton.addActionListener(e -> removeFromWrongList()); //点击后使用
-        buttonPanel.add(removeButton); //添加到面板
-        
-        wrongPanel.add(buttonPanel, BorderLayout.SOUTH); //按钮页面添加到底部
+        JButton removeButton = createSmallButton("移出错题本", new Color(205, 92, 92)); //移除错题本按钮
+        removeButton.addActionListener(e -> {
+            removeFromWrongList();
+            updateStats.run();
+        );
+
+        JButton studyButton = createSmallButton("复习错题", new Color(46, 139, 87)); //复习错题按钮
+        studyButton.addActionListener(e -> {
+            if (wrongTableModel.getRowCount() > 0) { //有错题
+                isReviewMode = true; //启用
+                resetStudyStats(); //重置数据
+                loadNextWrongWord(); //加载数据
+                titleLabel.setText("单词复习模式 - " + currentDictPath); //修改标题
+                cardLayout.show(cardPanel, STUDY_PANEL); //切换学习界面
+            } else {
+                JOptionPane.showMessageDialog(this, "当前没有错题可复习！", "提示", JOptionPane.INFORMATION_MESSAGE); //弹出窗口
+            }
+        });
+
+        JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); //创建面板
+        rightButtonPanel.setOpaque(false); //背景透明
+        rightButtonPanel.add(studyButton); //按钮放在右侧面板中
+        rightButtonPanel.add(exportButton); //添加导出错题按钮
+        rightButtonPanel.add(removeButton); //添加删除错题按钮
+
+        JPanel bottomPanel = new JPanel(new BorderLayout()); //创建底部面板
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(statsPanel, BorderLayout.WEST); //统计面板放在左侧面板
+        bottomPanel.add(rightButtonPanel, BorderLayout.EAST); //按钮面板放在右侧
+
+        wrongPanel.add(bottomPanel, BorderLayout.SOUTH); //整个按钮面板放早底部
     }
     
     private void loadDictionaries() { //加载当前的目录中含有的词典
@@ -885,9 +983,8 @@ private void createStudyPanel() { //创建学习页面
         }
 
         int index = (int) (Math.random() * words.size());
-        currentWord = words.get(index); //随机选择一个单词
-
-        currentWordLabel.setText(currentWord.getWord()); //更新界面
+        
+        currentWordLabel.setText(currentWord.getWord()); //设置标签
         currentWordLabel.setForeground(UIManager.getColor("Label.foreground")); //重置文本为绿色
         meaningLabel.setText("含义: " + currentWord.getMeaning()); //正确单词中文释义
         exampleLabel.setText("例句: " + currentWord.getExample()); //例句
@@ -981,7 +1078,7 @@ private void createStudyPanel() { //创建学习页面
         }
     }
 
-    private void exportWrongWords() { //导出错题
+private void exportWrongWords() { //导出错题
         List<Word> wrongWords = currentWordList.getWrongWordsList(); //获取错题
         if (wrongWords.isEmpty()) { //无错题
             JOptionPane.showMessageDialog(this, "没有错题可导出！", "提示", JOptionPane.INFORMATION_MESSAGE); //提示无导出
@@ -1078,7 +1175,6 @@ private void createStudyPanel() { //创建学习页面
                     wordsToDelete.add(word); //添加到列表
                 }
             }
-
             for (Word word : wordsToDelete) { //获取单词
                 currentWordList.removeWord(word); //删除
             }
@@ -1094,7 +1190,6 @@ private void createStudyPanel() { //创建学习页面
         } catch (Exception e) {
             e.printStackTrace(); //打开失败 弹出信息
         }
-
         SwingUtilities.invokeLater(new Runnable() { //启动应用
             @Override
             public void run() {
@@ -1136,6 +1231,7 @@ private void createStudyPanel() { //创建学习页面
                 currentDictPath = selectedDict; //词典路径为被选择的
                 currentWordList = new WordList(currentDictPath); //用新保存的词典创建新表
                 saveConfig(); //保存当前词典的配置
+                
                 if (currentWordList.size() > 0) { //检查是否有单词
                     isReviewMode = false; //设置为学习模式
                     resetStudyStats(); //学习统计重置
