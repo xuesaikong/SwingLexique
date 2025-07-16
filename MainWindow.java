@@ -289,6 +289,10 @@ public class MainWindow extends JFrame { // 常量定义
         studyPanel = new JPanel(new BorderLayout(10, 10)); //边界布局
         studyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //边框留白
 
+        titleLabel = new JLabel("单词学习", JLabel.CENTER); //创建标题标签
+        titleLabel.setFont(new Font("宋体", Font.BOLD, 16)); //字体大小
+        studyPanel.add(titleLabel, BorderLayout.PAGE_START); //添加到学习区域
+
         JPanel topPanel = new JPanel(new BorderLayout()); // 进行面板创建
         
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); //统计信息区域创建总单词 已学习 答错数据 居左
