@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.awt.geom.RoundRectangle2D;
+import javax.swing.border.EmptyBorder;
+import java.awt.GradientPaint;
 
 public class MainWindow extends JFrame { // 常量定义
     private static final String HOME_PANEL = "主页"; //主页
@@ -151,36 +154,59 @@ public class MainWindow extends JFrame { // 常量定义
     }
  
     private void createHomePanel() {
-        homePanel = new JPanel(new BorderLayout()); //主页面板 边界布局
-        
+        homePanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create()
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //自定义面板实现渐变背景
+
+                GradientPaint gradient = new GradientPaint(
+                     0, 0, new Color(240, 248, 255), 
+                     0, getHeight(), new Color(176, 224, 230) // Powder Blue//创建渐变由粉到蓝
+                ):
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight()); //渐变色 矩形背景
+                g2d.dispose(); //释放
+            }
+        };
+                
         JLabel titleLabel = new JLabel("单词学习系统", JLabel.CENTER); //顶部标题
-        titleLabel.setFont(new Font("宋体", Font.BOLD, 36)); //字体和大小
-        homePanel.add(titleLabel, BorderLayout.NORTH); //位于顶部
+        subtitleLabel.setFont(new Font("微软雅黑", Font.PLAIN, 42)); //字体大小
+        titleLabel.setForeground(new Color(25, 25, 112)); //颜色
+        titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0)); //内边距
         
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 30)); //按钮布局
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 150, 50, 150)); // 创建功能按钮面板，距离内边距
-        
-        JButton dictButton = new JButton("词表管理"); //词表顶部标题
-        dictButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体和大小
+        JLabel subtitleLabel = new JLabel("提升您的词汇量，轻松学习新单词", JLabel.CENTER); //副标题
+        subtitleLabel.setFont(new Font("微软雅黑", Font.PLAIN, 18)); 
+        subtitleLabel.setForeground(new Color(70, 130, 180)); 
+
+        titlePanel.add(titleLabel, BorderLayout.NORTH); //主标题添加到标题的面板顶部
+        titlePanel.add(subtitleLabel, BorderLayout.CENTER); //副标题添加到标题的面板
+
+        homePanel.add(titlePanel, BorderLayout.NORTH); //标题面板到主面板
+
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 30, 30)); //创建面板
+        buttonPanel.setOpaque(false); //透明背景
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 80, 100)); //内边距
+
+        JButton dictButton = createStyledButton("词表管理", new Color(65, 105, 225)); //创建词表管理按钮
         dictButton.addActionListener(e -> {
             loadDictionaries(); //加载词库
             loadWordData(); //加载单词
             cardLayout.show(cardPanel, DICT_PANEL); //切换词库页面
         });
-        
-        JButton studyButton = new JButton("单词学习"); //单词学习按钮
-        studyButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体和大小
+
+        JButton studyButton = createStyledButton("单词学习", new Color(46, 139, 87)); //创建单词学习按钮
         studyButton.addActionListener(e -> {
             showDictionarySelectionDialog(); //弹出选择词表的窗口
         });
 
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 30)); //单词复习按钮
-        reviewButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体大小
+        JButton reviewButton = createStyledButton("单词复习", new Color(205, 92, 92)); //创建单词复习按钮
         reviewButton.addActionListener(e -> {
             showReviewDictionarySelectionDialog(); //弹出选择窗口
         });
-        JButton wrongButton = new JButton("错题本"); //创建错题本
-        wrongButton.setFont(new Font("宋体", Font.PLAIN, 24)); //字体和大小
+
+        JButton wrongButton = createStyledButton("错题本", new Color(218, 165, 32)); //创建错题本按钮
         wrongButton.addActionListener(e -> { 
             loadWrongWords(); //加载错题本
             cardLayout.show(cardPanel, WRONG_PANEL); //切换错题本页面
@@ -192,8 +218,59 @@ public class MainWindow extends JFrame { // 常量定义
         buttonPanel.add(wrongButton); //添加错题本按钮
         
         homePanel.add(buttonPanel, BorderLayout.CENTER); //以上按钮添加至主页
+
+        JLabel copyrightLabel = new JLabel("© 2023 单词学习系统 - 版本 1.0", JLabel.CENTER);
+        copyrightLabel.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+        copyrightLabel.setForeground(new Color(105, 105, 105));
+        copyrightLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
+        homePanel.add(copyrightLabel, BorderLayout.SOUTH); //以上为版权信息
     }
- 
+
+    private JButton createStyledButton(String text, Color baseColor) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //自定义渐变的圆角按钮的构建
+
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, baseColor.brighter(),
+                    0, getHeight(), baseColor //垂直的渐变色
+                );
+                g2d.setPaint(gradient);
+
+                g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20)); //圆角的矩形
+        
+                g2d.setColor(baseColor.darker());
+                g2d.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 20, 20)); //边框的绘制
+
+                g2d.dispose();
+
+                super.paintComponent(g); //文本颜色和位置
+            }
+        };
+
+        button.setFont(new Font("微软雅黑", Font.BOLD, 24)); //按钮字体大小
+        button.setForeground(Color.WHITE); //颜色
+        button.setFocusPainted(false); //移除焦点边框
+        button.setBorderPainted(false); //不绘制默认边框
+        button.setContentAreaFilled(false); //不填充内容区域
+        button.setOpaque(false); //透明
+        
+        button.setPreferredSize(new Dimension(200, 120)); //按钮尺寸
+        
+        button.addMouseListener(new java.awt.event.MouseAdapter() { 
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); //悬停效果 光标变手型
+            }
+        });
+                
     private void createDictPanel() { //创建此表管理界面
         dictPanel = new JPanel(new BorderLayout(10, 10)); //字体和大小
         dictPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); //内边距
