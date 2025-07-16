@@ -898,6 +898,11 @@ public class MainWindow extends JFrame { // 常量定义
                     isReviewMode = false; //设置为学习模式
                     resetStudyStats(); //学习统计重置
                     loadNextWord(); //加载第一个单词
+
+                    JLabel titleLabel = new JLabel("单词学习模式 - " + currentDictPath, JLabel.CENTER); //设置标题
+                    titleLabel.setFont(new Font("宋体", Font.BOLD, 16)); //字体大小
+                    studyPanel.add(titleLabel, BorderLayout.PAGE_START); //添加到学习区域
+                    
                     cardLayout.show(cardPanel, STUDY_PANEL); //显示学习的版面
                 } else {
                     JOptionPane.showMessageDialog(this, "所选词典没有单词，请先添加单词！", "提示", JOptionPane.WARNING_MESSAGE); //无词弹出提示
@@ -930,6 +935,11 @@ public class MainWindow extends JFrame { // 常量定义
                     isReviewMode = true; //设置为复习模式
                     resetStudyStats(); //学习重置
                     loadNextWrongWord(); //加载错词
+
+                    JLabel titleLabel = new JLabel("单词复习模式 - " + currentDictPath, JLabel.CENTER); //设置标题
+                    titleLabel.setFont(new Font("宋体", Font.BOLD, 16)); //字体大小
+                    studyPanel.add(titleLabel, BorderLayout.PAGE_START); //添加到学习区域
+                    
                     cardLayout.show(cardPanel, STUDY_PANEL); //学习面板显示
                 } else {
                     JOptionPane.showMessageDialog(this, "所选词典没有错题记录，请先进行单词学习！", "提示", JOptionPane.WARNING_MESSAGE); //弹出提示
