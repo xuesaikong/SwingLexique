@@ -652,6 +652,31 @@ public class MainWindow extends JFrame { // 常量定义
 
         nextButton.setEnabled(false); //禁用下一个按钮
     }
+    private void loadNextWrongWord() {
+        List<Word> wrongWords = currentWordList.getWrongWordsList(); //获取错词
+        if (wrongWords.isEmpty()) { //没有错词
+            JOptionPane.showMessageDialog(this, "没有错题可复习！", "提示", JOptionPane.INFORMATION_MESSAGE); //弹出提示
+            return;
+        }
+
+        int index = (int) (Math.random() * wrongWords.size());
+        currentWord = wrongWords.get(index); //错词随机
+
+        currentWordLabel.setText(currentWord.getWord()); //更新界面
+        currentWordLabel.setForeground(UIManager.getColor("Label.foreground")); //文本颜色重置
+        meaningLabel.setText("含义: " + currentWord.getMeaning()); //设置含义
+        exampleLabel.setText("例句: " + currentWord.getExample()); //设置例句
+
+        meaningLabel.setVisible(false); //隐藏含义
+        exampleLabel.setVisible(false); //银行例句
+
+        answerField.setText(""); //清空输入框
+        answerField.requestFocus(); //获取焦点
+
+        nextButton.setEnabled(false); //禁用下一个
+
+        totalWordsLabel.setText(String.valueOf(wrongWords.size())); //统计信息更新
+    }
 
     private void checkAnswer() { //检查答案
         String answer = answerField.getText().trim(); //输入答案后去除空格
