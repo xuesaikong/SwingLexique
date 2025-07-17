@@ -1,3 +1,4 @@
+package src;
 public class Word {
     private String word; // 单词
     private String meaning; // 单词含义
