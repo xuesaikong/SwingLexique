@@ -95,6 +95,12 @@ public class WordList {
         return words.size(); //单词量
     }
 
+    public void addWordWithoutSave(Word word) { // 添加单词
+        words.add(word);
+        if (word.getWrongCount() > 0) {
+            wrongWords.put(word.getWord(), word.getWrongCount());
+        }
+    }
 
     public void recordWrong(Word word) {
         word.increaseWrongCount(); //错误次数
