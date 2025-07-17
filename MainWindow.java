@@ -793,6 +793,7 @@ public class MainWindow extends JFrame { // 常量定义
 
         wrongDictComboBox = new JComboBox<>();
         wrongDictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        wrongDictComboBox.setPreferredSize(new Dimension(220, 30));
         wrongDictComboBox.setBackground(Color.WHITE);
         wrongDictComboBox.setUI(new BasicComboBoxUI());
         wrongDictComboBox.setBorder(new CompoundBorder(
@@ -1401,7 +1402,7 @@ public class MainWindow extends JFrame { // 常量定义
                     isReviewMode = false; //设置为学习模式
                     resetStudyStats(); //学习统计重置
                     loadNextWord(); //加载第一个单词
-                    
+
                     titleLabel.setText("单词学习模式 - " + currentDictPath); //更新标题
                     
                     cardLayout.show(cardPanel, STUDY_PANEL); //显示学习的版面
