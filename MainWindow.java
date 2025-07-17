@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.UIManager;
+import javax.swing.table.DefaultTableCellRenderer;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +19,14 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.border.EmptyBorder;
-import java.awt.GradientPaint;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.table.JTableHeader;
+import javax.swing.border.AbstractBorder;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 
 public class MainWindow extends JFrame { // 常量定义
     private static final String HOME_PANEL = "主页"; //主页
@@ -35,7 +43,7 @@ public class MainWindow extends JFrame { // 常量定义
     private JTable wordTable; //显示单词列表表格
     private DefaultTableModel tableModel; //表格数据
     private JComboBox<String> dictComboBox; //选择框下拉
-    private JTextField wordField; //单词文本框
+    private JTextField wordField;//单词文本框
     private JTextField meaningField; //释义文本框
     private JTextField exampleField; //例句文本框
     private JPanel studyPanel; //学习面板
@@ -57,6 +65,9 @@ public class MainWindow extends JFrame { // 常量定义
     private JTable wrongTable; //错题表格
     private DefaultTableModel wrongTableModel; //错误表格数据
     private JComboBox<String> wrongDictComboBox; // 错题本下拉选择框
+    private JLabel feedbackLabel; //反馈
+    private Timer feedbackTimer; //动画
+    private float feedbackAlpha = 1.0f; //透明度
 
     public MainWindow() { // 设置窗口标题和大小
         super("单词学习系统"); //标题
@@ -64,19 +75,20 @@ public class MainWindow extends JFrame { // 常量定义
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //退出
         setLocationRelativeTo(null); //窗口居中显示
 
-        Font globalFont = new Font("Dialong", Font.PLAIN, 12); //设置UI字体，支持法语
-        UIManger.put("Button.Font", globalFont);
-        UIManger.put("Label.Font", globalFont);
-        UIManger.put("TextField.Font", globalFont);
-        UIManger.put("TextArea.Font", globalFont);
-        UIManger.put("Table.Font", globalFont);
-        UIManger.put("ComboBox.Font", globalFont);
+        Font globalFont = new Font("Dialog", Font.PLAIN, 12); //设置UI字体，支持法语
+        UIManager.put("Button.Font", globalFont);
+        UIManager.put("Label.Font", globalFont);
+        UIManager.put("TextField.Font", globalFont);
+        UIManager.put("TextArea.Font", globalFont);
+        UIManager.put("Table.Font", globalFont);
+        UIManager.put("ComboBox.Font", globalFont);
 
         loadConfig(); //加载配置
         
         currentWordList = new WordList(currentDictPath); // 初始化单词列表
         
         initComponents(); // 初始化界面组件
+
         loadDictionaries(); //加载所有字典
     }
 
@@ -128,6 +140,7 @@ public class MainWindow extends JFrame { // 常量定义
 
         JMenuItem reviewItem = new JMenuItem("单词复习"); 
         reviewItem.addActionListener(e -> {
+            loadWrongWords();
             showReviewDictionarySelectionDialog(); //弹出窗口选择词表进行复习
         });
         
@@ -141,8 +154,7 @@ public class MainWindow extends JFrame { // 常量定义
         pageMenu.add(dictItem); //词典添加到页面菜单
         pageMenu.add(studyItem); //学习添加到页面菜单
         pageMenu.add(reviewItem); //学习添加到页面菜单
-        pageMenu.add(wrongItem); //错题本添加到页面菜单
-        
+        pageMenu.add(wrongItem); //错题本添加到页面菜单  
         menuBar.add(fileMenu);
         menuBar.add(pageMenu); // // 添加菜单到菜单栏
         
@@ -154,13 +166,13 @@ public class MainWindow extends JFrame { // 常量定义
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g.create()
+                Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //自定义面板实现渐变背景
 
                 GradientPaint gradient = new GradientPaint(
                      0, 0, new Color(240, 248, 255), 
                      0, getHeight(), new Color(176, 224, 230) // Powder Blue//创建渐变由粉到蓝
-                ):
+                );
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight()); //渐变色 矩形背景
                 g2d.dispose(); //释放
@@ -235,6 +247,7 @@ public class MainWindow extends JFrame { // 常量定义
                 g2d.setPaint(gradient);
 
                 g2d.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 20, 20)); //圆角的矩形
+
                 g2d.setColor(baseColor.darker());
                 g2d.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 20, 20)); //边框的绘制
 
@@ -301,19 +314,25 @@ public class MainWindow extends JFrame { // 常量定义
         
         JLabel selectLabel = new JLabel("选择词典:"); //创建标签
         selectLabel.setFont(new Font("微软雅黑", Font.BOLD, 14)); //字体大小
-        selectLabel.setForeground(new Color(70, 130, 180)) //颜色
+        selectLabel.setForeground(new Color(70, 130, 180)); //颜色
         dictSelectPanel.add(selectLabel); //添加到面板
         
         dictComboBox = new JComboBox<>(); //创建下拉框选择词典
         dictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14)); //字体大小
         dictComboBox.setPreferredSize(new Dimension(220, 30)); //尺寸
-        ictComboBox.setBackground(Color.WHITE); //颜色
+        dictComboBox.setBackground(Color.WHITE); //颜色
+        dictComboBox.setUI(new RoundedComboBoxUI());
+        dictComboBox.setBorder(new CompoundBorder(
+            new LineBorder(new Color(176, 224, 230), 1),
+            new EmptyBorder(2, 5, 2, 5)
+
+        ));
         dictComboBox.addActionListener(e -> {
             if (dictComboBox.getSelectedItem() != null) {
-                currentDictPath = dictComboBox.getSelectedItem().toString(); //词典路径
-                currentWordList = new WordList(currentDictPath); //加载对应词典
-                saveConfig(); //保存
-                loadWordData(); //加载词典内容到表格
+                currentDictPath = dictComboBox.getSelectedItem().toString();
+                currentWordList = new WordList(currentDictPath);
+                saveConfig(); //保存配置
+                loadWordData();
             }
         });
         dictSelectPanel.add(dictComboBox); //左侧区域添加下拉框
@@ -356,12 +375,66 @@ public class MainWindow extends JFrame { // 常量定义
         };
         wordTable = new JTable(tableModel); //创建表格
         wordTable.setFont(new Font("微软雅黑", Font.PLAIN, 14)); //字体
-        wordTable.setRowHeight(25);
+        wordTable.setRowHeight(30);
         wordTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //允许多选
-        wordTable.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14)); 字体
-        wordTable.getTableHeader().setBackground(new Color(240, 248, 255)); //颜色
-        wordTable.setSelectionBackground(new Color(176, 224, 230, 100)); //背景颜色
-        wordTable.setGridColor(new Color(230, 230, 250)); //网格颜色
+
+        JTableHeader header = wordTable.getTableHeader();
+        header.setFont(new Font("微软雅黑", Font.BOLD, 14)); //字体
+        header.setBackground(new Color(65, 105, 225)); //颜色
+        header.setPreferredSize(new Dimension(header.getWidth(), 35)); //背景颜色
+        ((DefaultTableCellRenderer)header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                c.setFont(new Font("微软雅黑", Font.BOLD, 14));
+                c.setForeground(Color.WHITE);
+                c.setBackground(new Color(65, 105, 225));
+                setBorder(new EmptyBorder(5, 0, 5, 0));
+                setHorizontalAlignment(JLabel.CENTER);
+                return c;
+            }
+        }; //表头渲染
+
+        for (int i = 0; i < wordTable.getColumnCount(); i++) {
+            wordTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        } //表头渲染器
+
+        wordTable.setShowGrid(true);
+        wordTable.setGridColor(new Color(230, 230, 250));
+        wordTable.setSelectionBackground(new Color(65, 105, 225, 50));
+        wordTable.setSelectionForeground(new Color(25, 25, 112));
+        wordTable.setIntercellSpacing(new Dimension(5, 5)); //单元格美化
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (isSelected) {
+                    c.setBackground(new Color(65, 105, 225, 50));
+                    c.setForeground(new Color(25, 25, 112));
+                } else {
+                    // 交替行颜色
+                    if (row % 2 == 0) {
+                        c.setBackground(new Color(240, 248, 255)); // Alice Blue
+                    } else {
+                        c.setBackground(Color.WHITE);
+                    }
+                    c.setForeground(new Color(70, 70, 70));
+                }
+                setBorder(new CompoundBorder(getBorder(), new EmptyBorder(5, 10, 5, 10)));
+                
+                return c;
+            }
+        };
+
+        centerRenderer.setHorizontalAlignment(JLabel.LEFT);
+
+        for (int i = 0; i < wordTable.getColumnCount(); i++) {
+            wordTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
 
         wordTable.getColumnModel().getColumn(0).setPreferredWidth(150);
         wordTable.getColumnModel().getColumn(1).setPreferredWidth(200);
@@ -384,8 +457,8 @@ public class MainWindow extends JFrame { // 常量定义
             javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, //对齐方式
             javax.swing.border.TitledBorder.DEFAULT_POSITION, //位置
             new Font("微软雅黑", Font.BOLD, 14), //字体
-            new Color(25, 25, 112) 颜色
-        )};
+            new Color(25, 25,112) //颜色
+        ));
 
         JLabel wordLabel = new JLabel("单词:"); //标签
         wordLabel.setFont(new Font("微软雅黑", Font.BOLD, 14)); //字体
@@ -403,7 +476,7 @@ public class MainWindow extends JFrame { // 常量定义
         JLabel meaningLabel = new JLabel("含义:");
         meaningLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
         meaningLabel.setForeground(new Color(70, 130, 180)); 
-        inputPanel.add(meaningLabel)
+        inputPanel.add(meaningLabel);
 
         meaningField = new JTextField();
         meaningField.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -500,7 +573,7 @@ private JButton createSmallButton(String text, Color baseColor) { //创建按钮
         }
     });
 
-        return button
+        return button;
 }
 
     private void createStudyPanel() { //创建学习页面
