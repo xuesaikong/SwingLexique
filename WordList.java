@@ -1,5 +1,5 @@
 import java.io.*;
-import java.nio.charset.standardCharsets;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class WordList {
@@ -24,7 +24,7 @@ public class WordList {
         }
         
         try (BufferedReader reader = new BufferedReader(
-            new InputStreamReader（new FileInputstream(file), StandardCharsets.utf_8))){ //确保读码顺利
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {//修复 确保读码顺利
             String line;
             while ((line = reader.readLine()) != null) { //逐行进行读取直至结束
                 String[] parts = line.split(",");
