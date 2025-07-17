@@ -3,15 +3,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +21,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.JTableHeader;
 import javax.swing.border.AbstractBorder;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
 
 public class MainWindow extends JFrame { // 常量定义
     private static final String HOME_PANEL = "主页"; //主页
@@ -342,7 +336,7 @@ public class MainWindow extends JFrame { // 常量定义
         dictSelectPanel.add(newDictButton);
 
         JButton deleteDictButton = createSmallButton("删除词典", new Color(205, 92, 92)); //删除字典按钮
-        deleteDictbutton.addActionListener(e -> createNewDictionary()); //调用删除字典
+        deleteDictButton.addActionListener(e -> createNewDictionary()); //调用删除字典
         dictSelectPanel.add(deleteDictButton); //按钮谈驾到词典选择的面板上
         
         topPanel.add(dictSelectPanel, BorderLayout.WEST); //左侧词典选择区域加入顶部面板
@@ -729,15 +723,14 @@ public class MainWindow extends JFrame { // 常量定义
         answerPanel.setFont(new Font("微软雅黑", Font.BOLD, 16));
         answerPanel.setForeground(new Color(70, 130, 180));
         answerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        answerPanel.add(answerPanel);
+        // answerPanel.add(answerPanel);
 
         answerPanel.add(Box.createHorizontalStrut(10));
         
         JButton checkButton = createSmallButton("检查", new Color(46, 139, 87)); //创建检查按钮
         checkButton.addActionListener(e -> checkAnswer());
-        inputPanel.add(checkButton);
 
-        answerPanel.add(inputPanel);
+        answerPanel.add(checkButton);
 
         centerPanel.add(answerPanel); //答题区域添加到中间面板
         
@@ -791,13 +784,13 @@ public class MainWindow extends JFrame { // 常量定义
         JPanel topPanel = new JPanel(new BorderLayout()); //顶部标题面板
         topPanel.setOpaque(false); //透明
 
-        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        dictSelectPanel.setOpaque(false); //词表选择面板
+        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5)); //词典选择的面板
+        dictSelectPanel.setOpaque(false); //背景透明
 
-        JLabel selectLabel = new JLabel("选择词典:");
+        JLabel selectLabel = new JLabel("选择词典:"); //创建标签
         selectLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
-        selectLabel.setForeground(new Color(70, 130, 180));
-        dictSelectPanel.add(selectLabel);
+        selectLabel.setForeground(new Color(160, 82, 45));
+         dictSelectPanel.add(selectLabel);
 
         wrongDictComboBox = new JComboBox<>();
         wrongDictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -824,15 +817,7 @@ public class MainWindow extends JFrame { // 常量定义
         titleLabel.setForeground(new Color(139, 69, 19)); // 颜色
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0)); //边距
         topPanel.add(titleLabel, BorderLayout.NORTH); //标签添加到上部
-        
-        JPanel dictSelectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5)); //词典选择的面板
-        dictSelectPanel.setOpaque(false); //背景透明
-        
-        JLabel selectLabel = new JLabel("选择词典:"); //创建标签
-        selectLabel.setFont(new Font("微软雅黑", Font.BOLD, 14));
-        selectLabel.setForeground(new Color(160, 82, 45));
-         dictSelectPanel.add(selectLabel);
-        
+    
         wrongDictComboBox = new JComboBox<>(); //下拉框
         wrongDictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         wrongDictComboBox.setPreferredSize(new Dimension(220, 30)); //尺寸
@@ -1104,15 +1089,15 @@ public class MainWindow extends JFrame { // 常量定义
                     String line;// 跳过第一行（表头）
                     reader.readLine(); //逗号分隔
                     while ((line = reader.readLine()) != null) { //逐个读取
-                        if((line = reader.readLine()) !=null){ //空行跳过
+                        if(line.trim().isEmpty()){ //空行跳过
                             continue; //继续下一行
                         }
 
-                        String[]parts = line.split(","); //逗号分隔
+                        String[] parts = line.split(","); //逗号分隔
                         if (parts.length >= 2) {
                             String word = parts[0].trim(); //要求至少包含单词和中文释义
                             String meaning = parts[1].trim(); //获取单词
-                            String example =parts.length>=3 ? parts[2].trim():"", //获取中文释义
+                            String example =parts.length>=3 ? parts[2].trim():""; //获取中文释义
 
                             word = removeQuotes(word); //去掉单词两边的引号
                             meaning = removeQuotes(meaning); //去掉中文释义的两边引号
