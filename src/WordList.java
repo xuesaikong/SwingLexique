@@ -79,13 +79,6 @@ public class WordList {
         saveToFile(); //并保存至文件夹
     }
 
-    public void removeWord(Word word){
-        words.add(word); //单词加入单词表
-        if (word.getWrongCount() > 0) {
-            wrongwords.put(word.getWord(), word.getWrongcount()); //答错单词加入错题集
-        }
-    }
-
     public void removeWord(Word word) {
         words.remove(word);  //在单词表中删除
         wrongWords.remove(word.getWord()); //在错题集中删除

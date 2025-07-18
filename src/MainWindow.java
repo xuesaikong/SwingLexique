@@ -792,26 +792,6 @@ public class MainWindow extends JFrame { // 常量定义
         selectLabel.setForeground(new Color(160, 82, 45));
          dictSelectPanel.add(selectLabel);
 
-        wrongDictComboBox = new JComboBox<>();
-        wrongDictComboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        wrongDictComboBox.setPreferredSize(new Dimension(220, 30));
-        wrongDictComboBox.setBackground(Color.WHITE);
-        wrongDictComboBox.setUI(new BasicComboBoxUI());
-        wrongDictComboBox.setBorder(new CompoundBorder(
-            new LineBorder(new Color(176, 224, 230), 1),
-            new EmptyBorder(2, 5, 2, 5)
-        ));
-        wrongDictComboBox.addActionListener(e -> {
-            if (wrongDictComboBox.getSelectedItem() != null) {
-                currentDictPath = wrongDictComboBox.getSelectedItem().toString();
-                currentWordList = new WordList(currentDictPath);
-                saveConfig();
-                loadWrongWords();
-            }
-        });
-        dictSelectPanel.add(wrongDictComboBox);
-
-        topPanel.add(dictSelectPanel, BorderLayout.WEST);
 
         JLabel titleLabel = new JLabel("错题本", JLabel.CENTER); //创建标签
         titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 28));
@@ -881,7 +861,7 @@ public class MainWindow extends JFrame { // 常量定义
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(222, 184, 135), 1));
         wrongPanel.add(scrollPane, BorderLayout.CENTER); //添加表格到页面中样
 
-         wrongPanel.add(tablePanel, BorderLayout.CENTER); //添加到中间区域
+    
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10)); //按钮面板
         buttonPanel.setOpaque(false); //透明
